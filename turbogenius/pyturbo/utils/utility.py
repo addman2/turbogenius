@@ -221,6 +221,8 @@ def return_orb_type_chr(num_orb_type):
         return "hyb"
     elif num_orb_type in {1000000}:
         return "mol"
+    elif num_orb_type in range(10000, 11007):
+        return "d"
     elif num_orb_type in {200}:
         return "jas_const"
     else:
@@ -228,7 +230,7 @@ def return_orb_type_chr(num_orb_type):
 
 
 def return_contraction_flag(orb_type_num):
-    if orb_type_num in {16, 100, 36, 37, 68, 48, 51, 72, 73}:
+    if orb_type_num in {16, 100, 36, 37, 68, 48, 51, 72, 73, 10006}:
         contraction = False
     elif orb_type_num in {300, 400, 500, 600, 700, 800, 900}:
         contraction = True

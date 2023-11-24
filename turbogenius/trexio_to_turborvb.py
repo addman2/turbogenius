@@ -62,6 +62,7 @@ def trexio_to_turborvb_wf(
     mo_num_conv: int = -1,
     only_mol: bool = True,
     cleanup: bool = True,
+    qmckl: bool = False,
 ) -> None:
     """
     Convert trexio file to TurboRVB WF file (fort.10)
@@ -432,6 +433,9 @@ def trexio_to_turborvb_wf(
     makefort10.generate_input(
         input_name="makefort10.input", basis_sets_unique_element=False
     )
+    if qmckl:
+        os.system("sed 's/5   1   37/6   1   10006/g' makefort10.input > tmp")
+        os.system("cp tmp makefort10.input")
     makefort10.run()
 
     # rename fort.10
@@ -1070,51 +1074,52 @@ def trexio_to_turborvb_wf(
 
     # fort.10 MO replace
     logger.info("Writing obtained MOs to fort.10....(It might take a while).")
-    if not complex_flag:
-        # logger.info(len(mo_coefficient_turbo))
-        # logger.info(len(io_fort10.f10detbasissets.mo_coefficient))
-        io_fort10.f10detbasissets.mo_coefficient = mo_coefficient_turbo
-    else:
-        # complex case,
-        # mo_coefficient_turbo -> mo_coefficient_turbo_real, mo_coefficient_turbo_imag
-        mo_coefficient_turbo_real = []
-        mo_coefficient_turbo_imag = []
-        for mo_counter, mo__ in enumerate(mo_coefficient_turbo):
-            mo_real_b = []
-            mo_imag_b = []
-            for coeff in mo__:
-                mo_real_b.append(coeff.real)
-                mo_imag_b.append(coeff.imag)
-            
-            if spin_restricted:
-                mo_real_b_up = list(np.array(mo_real_b) * +1)
-                mo_imag_b_up = list(np.array(mo_imag_b) * +1)  # up phase is +
-                # these commented lines are wrong!! In general, the wf does not symmetric with respect to the time reversal except for TRIM points.
-                # mo_real_b_dn=list(np.array(mo_real_b) * +1) # real part is the same as the up spin.
-                # mo_imag_b_dn=list(np.array(mo_imag_b) * -1) # dn phase is -. because the opposite phase is attached in turbo with option double k-grid=.true.
-                mo_real_b_dn = list(np.array(mo_real_b) * +1)
-                mo_imag_b_dn = list(np.array(mo_imag_b) * +1)
+    if not qmckl:
+        if not complex_flag:
+            # logger.info(len(mo_coefficient_turbo))
+            # logger.info(len(io_fort10.f10detbasissets.mo_coefficient))
+            io_fort10.f10detbasissets.mo_coefficient = mo_coefficient_turbo
+        else:
+            # complex case,
+            # mo_coefficient_turbo -> mo_coefficient_turbo_real, mo_coefficient_turbo_imag
+            mo_coefficient_turbo_real = []
+            mo_coefficient_turbo_imag = []
+            for mo_counter, mo__ in enumerate(mo_coefficient_turbo):
+                mo_real_b = []
+                mo_imag_b = []
+                for coeff in mo__:
+                    mo_real_b.append(coeff.real)
+                    mo_imag_b.append(coeff.imag)
+                
+                if spin_restricted:
+                    mo_real_b_up = list(np.array(mo_real_b) * +1)
+                    mo_imag_b_up = list(np.array(mo_imag_b) * +1)  # up phase is +
+                    # these commented lines are wrong!! In general, the wf does not symmetric with respect to the time reversal except for TRIM points.
+                    # mo_real_b_dn=list(np.array(mo_real_b) * +1) # real part is the same as the up spin.
+                    # mo_imag_b_dn=list(np.array(mo_imag_b) * -1) # dn phase is -. because the opposite phase is attached in turbo with option double k-grid=.true.
+                    mo_real_b_dn = list(np.array(mo_real_b) * +1)
+                    mo_imag_b_dn = list(np.array(mo_imag_b) * +1)
 
-                mo_coefficient_turbo_real.append(mo_real_b_dn)  # dn
-                mo_coefficient_turbo_imag.append(mo_imag_b_dn)  # dn
-                # because mo_dn is not needed for unpaired MOs.
-                # if num_ele_up - num_ele_dn == 0: the following condition is always true.
-                if (len(mo_coefficient_turbo) - (num_ele_up - num_ele_dn)) >= mo_counter + 1:
-                    mo_coefficient_turbo_real.append(mo_real_b_up)  # up
-                    mo_coefficient_turbo_imag.append(mo_imag_b_up)  # up
-            else: # if spin_restricted==False
-                mo_coefficient_turbo_real.append(mo_real_b)
-                mo_coefficient_turbo_imag.append(mo_imag_b)
+                    mo_coefficient_turbo_real.append(mo_real_b_dn)  # dn
+                    mo_coefficient_turbo_imag.append(mo_imag_b_dn)  # dn
+                    # because mo_dn is not needed for unpaired MOs.
+                    # if num_ele_up - num_ele_dn == 0: the following condition is always true.
+                    if (len(mo_coefficient_turbo) - (num_ele_up - num_ele_dn)) >= mo_counter + 1:
+                        mo_coefficient_turbo_real.append(mo_real_b_up)  # up
+                        mo_coefficient_turbo_imag.append(mo_imag_b_up)  # up
+                else: # if spin_restricted==False
+                    mo_coefficient_turbo_real.append(mo_real_b)
+                    mo_coefficient_turbo_imag.append(mo_imag_b)
 
-        logger.debug(mo_coefficient_turbo)
-        logger.info(f"fort10mo_real={len(io_fort10.f10detbasissets.mo_coefficient)}")
-        logger.info(f"trexmo_real={len(mo_coefficient_turbo_real)}")
-        logger.info(f"fort10mo_real={len(io_fort10.f10detbasissets.mo_coefficient_imag)}")
-        logger.info(f"trexmo_real={len(mo_coefficient_turbo_imag)}")
-        io_fort10.f10detbasissets.mo_coefficient = mo_coefficient_turbo_real
-        io_fort10.f10detbasissets.mo_coefficient_imag = (
-            mo_coefficient_turbo_imag
-        )
+            logger.debug(mo_coefficient_turbo)
+            logger.info(f"fort10mo_real={len(io_fort10.f10detbasissets.mo_coefficient)}")
+            logger.info(f"trexmo_real={len(mo_coefficient_turbo_real)}")
+            logger.info(f"fort10mo_real={len(io_fort10.f10detbasissets.mo_coefficient_imag)}")
+            logger.info(f"trexmo_real={len(mo_coefficient_turbo_imag)}")
+            io_fort10.f10detbasissets.mo_coefficient = mo_coefficient_turbo_real
+            io_fort10.f10detbasissets.mo_coefficient_imag = (
+                mo_coefficient_turbo_imag
+            )
 
     # clean up
     if cleanup:
@@ -1187,6 +1192,13 @@ def main():
         "--cleanup",
         help="clean up temporary files",
         default=True,
+        action="store_true",
+    )
+    parser.add_argument(
+        "-q",
+        "--qmckl",
+        help="Prepare QMCkl inputs",
+        default=False,
         action="store_true",
     )
     args = parser.parse_args()
@@ -1332,6 +1344,7 @@ def main():
             cleanup=args.cleanup,
             max_occ_conv=0.01,
             jas_basis_sets=jas_basis_sets,
+            qmckl=args.qmckl
         )
 
         if args.twist_average:
