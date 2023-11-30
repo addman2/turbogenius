@@ -37,6 +37,7 @@ from turbogenius.pyturbo.convertfort10mol import Convertfort10mol
 from turbogenius.pyturbo.utils.utility import (
     turbo_prim_orb_type_num,
     turbo_cont_orb_type_num,
+    turbo_orb_multiciplity,
     return_orbchr,
 )
 from turbogenius.pyturbo.utils.utility import return_atomic_number
@@ -295,7 +296,7 @@ def trexio_to_turborvb_wf(
             )
         else:  # uncontracted orbitals
             shell_ang_mom_turbo_notation.append(
-                turbo_prim_orb_type_num(return_orbchr(ang_mom))
+                turbo_prim_orb_type_num(return_orbchr(ang_mom), cartesian = ao_cartesian)
             )
 
     # if complex_flag is true, we need a dummy coeff_imag!!
@@ -303,6 +304,15 @@ def trexio_to_turborvb_wf(
         basis_coefficient_imag = [0.0] * len(basis_coefficient)
     else:
         basis_coefficient_imag = []
+    print(basis_nucleus_index,
+        basis_shell_ang_mom,
+        shell_ang_mom_turbo_notation,
+        basis_shell_factor,
+        basis_shell_index,
+        basis_exponent,
+        basis_coefficient,
+        basis_coefficient_imag,
+        basis_prim_factor)
     det_basis_sets = Det_Basis_sets(
         nucleus_index=basis_nucleus_index,
         shell_ang_mom=basis_shell_ang_mom,
@@ -565,7 +575,7 @@ def trexio_to_turborvb_wf(
     # check cartesian / spherical flag:
     if ao_cartesian != 0:
         logger.error("basis set is represent with cartesian")
-        raise NotImplementedError
+        #raise NotImplementedError
     else:
         logger.info("basis set is represent with spherical")
 
@@ -614,6 +624,8 @@ def trexio_to_turborvb_wf(
                 current_ang_mom = ang_mom
 
                 # set multiplicity
+                breakpoint()
+                #multiplicity = turbo_orb_multiciplity(ang_mom)
                 multiplicity = 2 * ang_mom + 1
                 logger.debug(f"multiplicity = {multiplicity}")
 
@@ -658,10 +670,16 @@ def trexio_to_turborvb_wf(
                 elif current_ang_mom == 2:  # d shell
 
                     if ao_cartesian != 0:
+                        logger.debug("d shell/no permutation is needed.")
                         logger.debug(
-                            "Cartesian notation for d shell is not implemented yet! Sorry."
+                            ""
                         )
-                        raise NotImplementedError
+                        logger.debug(
+                            ""
+                        )
+                        reorder_index = [0, 1, 2, 3, 4]
+                        reorder_m_list = [0, +2, -2, -1, +1, 3]
+                        reorder_l_list = [2] * 6
                     else:
                         logger.debug("d shell/permutation is needed.")
                         logger.debug(
@@ -833,6 +851,8 @@ def trexio_to_turborvb_wf(
                 mo_nucleus_index_list_for_reordering.append(
                     mo_nucleus_index_local_buffer
                 )
+                # Add breakpoint here
+                breakpoint()
 
                 # store MOs!!
                 if len(mo_coefficient_list_for_reordering) == multiplicity:
@@ -887,6 +907,12 @@ def trexio_to_turborvb_wf(
                     mo_exponent_list_for_reordering = []
                     mo_nucleus_index_list_for_reordering = []
 
+            print("mo_m_list")
+            print(mo_m_list)
+            print("mo_l_list")
+            print(mo_l_list)
+            print("mo_coefficient_list")
+            print(mo_coefficient_list)
             assert len(mo_coefficient_list) == len(mo_exponent_list)
             assert len(mo_coefficient_list) == len(mo_nucleus_index_list)
             assert len(mo_coefficient_list) == len(mo_m_list)
@@ -1030,6 +1056,9 @@ def trexio_to_turborvb_wf(
             num_ele_dn + nel_diff
             for nel_diff in range(0, num_ele_up - num_ele_dn)
         ]
+        print(pop_lst)
+        print(len(mo_coefficient_turbo[0]))
+        s.s()
         for p in reversed(pop_lst):
             mo_coefficient_turbo_unpaired.append(mo_coefficient_turbo.pop(p))
         for m in reversed(mo_coefficient_turbo_unpaired):

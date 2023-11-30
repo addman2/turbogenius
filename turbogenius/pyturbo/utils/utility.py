@@ -114,29 +114,37 @@ def get_str_variable_type_auto(variable):
         return int(variable)
 
 
-def turbo_prim_orb_type_num(orb_type_chr):
-    if orb_type_chr == "s":
-        return 16
-    elif orb_type_chr == "p":
-        return 36
-    elif orb_type_chr == "d":
-        return 37
-        # 68 -> 37 !! 12/May/2022 because both are the same in makefun.f90
-        # (see. case(37,68)),
-        # but 500 is usually associated with 37 (see. ioptorbcontr.f90)
-    elif orb_type_chr == "f":
-        return 48
-    elif orb_type_chr == "g":
-        return 51  # 51 or 88?
-    elif orb_type_chr == "h":
-        return 72
-    elif orb_type_chr == "i":
-        return 73
+def turbo_prim_orb_type_num(orb_type_chr, cartesian = False):
+    if cartesian:
+        if orb_type_chr == "s":
+            return 90
+        elif orb_type_chr == "p":
+            return 91
+        elif orb_type_chr == "d":
+            return 92
     else:
-        logger.error(f"orb_type_chr={orb_type_chr} is not implemented.")
-        raise NotImplementedError(
-            f"Not implemented orb_type_chr={orb_type_chr}"
-        )
+        if orb_type_chr == "s":
+            return 16
+        elif orb_type_chr == "p":
+            return 36
+        elif orb_type_chr == "d":
+            return 37
+            # 68 -> 37 !! 12/May/2022 because both are the same in makefun.f90
+            # (see. case(37,68)),
+            # but 500 is usually associated with 37 (see. ioptorbcontr.f90)
+        elif orb_type_chr == "f":
+            return 48
+        elif orb_type_chr == "g":
+            return 51  # 51 or 88?
+        elif orb_type_chr == "h":
+            return 72
+        elif orb_type_chr == "i":
+            return 73
+        else:
+            logger.error(f"orb_type_chr={orb_type_chr} is not implemented.")
+            raise NotImplementedError(
+                f"Not implemented orb_type_chr={orb_type_chr}"
+            )
 
 
 def turbo_cont_orb_type_num(orb_type_chr):
@@ -159,6 +167,26 @@ def turbo_cont_orb_type_num(orb_type_chr):
         raise NotImplementedError(
             f"Not implemented orb_type_chr={orb_type_chr}"
         )
+
+def turbo_orb_multiciplity(num_orb_type):
+    if num_orb_type in {16, 90, 300}:
+        return 1
+    elif num_orb_type in {36, 91, 400}:
+        return 3
+    elif num_orb_type in {37, 68, 500}:
+        return 5
+    elif num_orb_type in {92}:
+        return 6
+    elif num_orb_type in {48, 600}:
+        return 7
+    elif num_orb_type in {51, 700}:
+        return 9
+    elif num_orb_type in {72, 800}:
+        return 11
+    elif num_orb_type in {73, 900}:
+        return 13
+    else:
+        raise NotImplementedError(f"Not suppported orb_type={num_orb_type}")
 
 
 def return_ang_mom(orb_typ_chr):
@@ -203,11 +231,11 @@ def return_orbchr(ang_mom):
 
 
 def return_orb_type_chr(num_orb_type):
-    if num_orb_type in {16, 300}:
+    if num_orb_type in {16, 90, 300}:
         return "s"
-    elif num_orb_type in {36, 400}:
+    elif num_orb_type in {36, 91, 400}:
         return "p"
-    elif num_orb_type in {37, 68, 500}:
+    elif num_orb_type in {37, 68, 92, 500}:
         return "d"
     elif num_orb_type in {48, 600}:
         return "f"
@@ -230,7 +258,7 @@ def return_orb_type_chr(num_orb_type):
 
 
 def return_contraction_flag(orb_type_num):
-    if orb_type_num in {16, 100, 36, 37, 68, 48, 51, 72, 73, 10006}:
+    if orb_type_num in {16, 100, 36, 37, 68, 48, 51, 72, 73, 90, 91, 92, 10006}:
         contraction = False
     elif orb_type_num in {300, 400, 500, 600, 700, 800, 900}:
         contraction = True

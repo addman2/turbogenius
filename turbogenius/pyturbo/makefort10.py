@@ -29,6 +29,7 @@ from turbogenius.pyturbo.utils.env import turbo_makefort10_run_command
 from turbogenius.pyturbo.utils.utility import file_check, file_check_flag
 from turbogenius.pyturbo.utils.utility import (
     return_num_twobody_and_flag_onebody,
+    turbo_orb_multiciplity,
 )
 from turbogenius.pyturbo.structure import Structure
 from turbogenius.pyturbo.namelist import Namelist
@@ -283,9 +284,10 @@ class Makefort10(FortranIO):
 
                         num_param = len(exponent_list) + len(coefficient_list)
 
+                        s.s()
                         output.append(
                             "  {:d}   {:d}   {:d}\n".format(
-                                2 * shell_ang_mom + 1,
+                                turbo_orb_multiciplity(shell_ang_mom_turbo),
                                 num_param,
                                 shell_ang_mom_turbo,
                             )
@@ -318,7 +320,8 @@ class Makefort10(FortranIO):
                         logger.debug(exponent)
                         output.append(
                             "  {:d}   {:d}   {:d}\n".format(
-                                2 * shell_ang_mom + 1, 1, shell_ang_mom_turbo
+                                turbo_orb_multiciplity(shell_ang_mom_turbo),
+                                1, shell_ang_mom_turbo
                             )
                         )
                         if basis_sets_unique_element:
