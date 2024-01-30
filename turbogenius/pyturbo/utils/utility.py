@@ -122,6 +122,10 @@ def turbo_prim_orb_type_num(orb_type_chr, cartesian = False):
             return 91
         elif orb_type_chr == "d":
             return 92
+        elif orb_type_chr == "f":
+            return 93
+        elif orb_type_chr == "g":
+            return 94
     else:
         if orb_type_chr == "s":
             return 16
@@ -181,10 +185,14 @@ def turbo_orb_multiciplity(num_orb_type):
         return 7
     elif num_orb_type in {51, 700}:
         return 9
+    elif num_orb_type in {93}:
+        return 10
     elif num_orb_type in {72, 800}:
         return 11
     elif num_orb_type in {73, 900}:
         return 13
+    elif num_orb_type in {94}:
+        return 15
     else:
         raise NotImplementedError(f"Not suppported orb_type={num_orb_type}")
 
@@ -237,9 +245,9 @@ def return_orb_type_chr(num_orb_type):
         return "p"
     elif num_orb_type in {37, 68, 92, 500}:
         return "d"
-    elif num_orb_type in {48, 600}:
+    elif num_orb_type in {48, 93, 600}:
         return "f"
-    elif num_orb_type in {51, 700}:
+    elif num_orb_type in {51, 94, 700}:
         return "g"
     elif num_orb_type in {72, 800}:
         return "h"
@@ -258,7 +266,7 @@ def return_orb_type_chr(num_orb_type):
 
 
 def return_contraction_flag(orb_type_num):
-    if orb_type_num in {16, 100, 36, 37, 68, 48, 51, 72, 73, 90, 91, 92, 10006}:
+    if orb_type_num in {16, 100, 36, 37, 68, 48, 51, 72, 73, 90, 91, 92, 93, 94, 10006}:
         contraction = False
     elif orb_type_num in {300, 400, 500, 600, 700, 800, 900}:
         contraction = True

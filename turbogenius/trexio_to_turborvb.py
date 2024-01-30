@@ -2,7 +2,6 @@
 # coding: utf-8
 
 """
-
 converter: TREXIO to TurboRVB WF (fort.10)
 
 Todo:
@@ -624,9 +623,9 @@ def trexio_to_turborvb_wf(
                 current_ang_mom = ang_mom
 
                 # set multiplicity
-                breakpoint()
-                #multiplicity = turbo_orb_multiciplity(ang_mom)
-                multiplicity = 2 * ang_mom + 1
+                #breakpoint()
+                multiplicity = turbo_orb_multiciplity(90 + ang_mom)
+                #multiplicity = 2 * ang_mom + 1
                 logger.debug(f"multiplicity = {multiplicity}")
 
                 # check if the buffer is null, when ang_mom changes
@@ -677,8 +676,8 @@ def trexio_to_turborvb_wf(
                         logger.debug(
                             ""
                         )
-                        reorder_index = [0, 1, 2, 3, 4]
-                        reorder_m_list = [0, +2, -2, -1, +1, 3]
+                        reorder_index = [0, 1, 2, 3, 4, 5]
+                        reorder_m_list = [0, 1, 2, 3, 4, 5]
                         reorder_l_list = [2] * 6
                     else:
                         logger.debug("d shell/permutation is needed.")
@@ -695,10 +694,16 @@ def trexio_to_turborvb_wf(
                 elif current_ang_mom == 3:  # f shell
 
                     if ao_cartesian != 0:
+                        logger.debug("f shell/no permutation is needed.")
                         logger.debug(
-                            "Cartesian notation for f shell is not implemented yet! Sorry."
+                            ""
                         )
-                        raise NotImplementedError
+                        logger.debug(
+                            ""
+                        )
+                        reorder_index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        reorder_m_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        reorder_l_list = [3] * 10
 
                     else:
                         logger.debug("f shell/no permutation is needed.")
@@ -715,10 +720,13 @@ def trexio_to_turborvb_wf(
                 elif current_ang_mom == 4:  # g shell
 
                     if ao_cartesian != 0:
+                        logger.debug("g shell/no permutation is needed.")
                         logger.debug(
-                            "Cartesian notation for g shell is not implemented yet! Sorry."
+                            ""
                         )
-                        raise NotImplementedError
+                        reorder_index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+                        reorder_m_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+                        reorder_l_list = [4] * 15
 
                     else:
                         logger.debug("g shell/no permutation is needed.")
@@ -852,7 +860,7 @@ def trexio_to_turborvb_wf(
                     mo_nucleus_index_local_buffer
                 )
                 # Add breakpoint here
-                breakpoint()
+                #breakpoint()
 
                 # store MOs!!
                 if len(mo_coefficient_list_for_reordering) == multiplicity:
@@ -1058,7 +1066,6 @@ def trexio_to_turborvb_wf(
         ]
         print(pop_lst)
         print(len(mo_coefficient_turbo[0]))
-        s.s()
         for p in reversed(pop_lst):
             mo_coefficient_turbo_unpaired.append(mo_coefficient_turbo.pop(p))
         for m in reversed(mo_coefficient_turbo_unpaired):

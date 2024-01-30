@@ -284,7 +284,6 @@ class Makefort10(FortranIO):
 
                         num_param = len(exponent_list) + len(coefficient_list)
 
-                        s.s()
                         output.append(
                             "  {:d}   {:d}   {:d}\n".format(
                                 turbo_orb_multiciplity(shell_ang_mom_turbo),
